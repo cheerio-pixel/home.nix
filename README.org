@@ -1,0 +1,4 @@
+* Install
+  This needs home-switcher and git to be installed.
+
+  $ cd ~/ && git clone https://github.com/cheerio-pixel/home.nix ~/.config/home-manager/ && home-manager switch
