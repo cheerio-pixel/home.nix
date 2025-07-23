@@ -1,5 +1,8 @@
 { config, pkgs, ... }:
 
+let
+  unstable = (import (fetchTarball "https://github.com/NixOS/nixpkgs/archive/nixpkgs-unstable.tar.gz") {});
+in
 {
   # Home Manager needs a bit of information about you and the paths it should
   # manage.
@@ -37,7 +40,7 @@
     (pkgs.writeShellScriptBin "nvim" ''
       LD_LIBRARY_PATH=${pkgs.lib.makeLibraryPath [
       pkgs.sqlite
-      ]} ${pkgs.neovim}/bin/nvim "$@"
+      ]} ${unstable.neovim}/bin/nvim "$@"
     '')
     vim
     emacs
@@ -117,6 +120,10 @@
 			  defaultBranch = "main";
 		  };
 	  };
+  };
+
+  services.ssh-agent = {
+      enable = true;
   };
 
   programs.tmux = {
