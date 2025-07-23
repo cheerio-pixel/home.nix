@@ -2,6 +2,7 @@
 
 let
   unstable = (import (fetchTarball "https://github.com/NixOS/nixpkgs/archive/nixpkgs-unstable.tar.gz") {});
+  isWsl = builtins.pathExists "/proc/sys/fs/binfmt_misc/WSLInterop";
 in
 {
   # Home Manager needs a bit of information about you and the paths it should
