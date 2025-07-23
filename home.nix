@@ -191,6 +191,8 @@ zstyle ':completion:*:descriptions' format '[%d]'
 zstyle ':completion:*' menu no
 # preview directory's content with eza when completing cd
 zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always $realpath'
+zstyle ':fzf-tab:*' continuous-trigger '/'
+
 # custom fzf flags
 # NOTE: fzf-tab does not follow FZF_DEFAULT_OPTS by default
 zstyle ':fzf-tab:*' fzf-flags --color=fg:1,fg+:2 --bind=tab:accept
@@ -204,14 +206,48 @@ zstyle ':fzf-tab:*' switch-group '<' '>'
 zstyle ':fzf-tab:*' fzf-bindings 'tab:accept'
 
 # Make fzf-tab recursively list files (like `**`)
-zstyle ':fzf-tab:*' file-patterns '**/*'
+# zstyle ':fzf-tab:*' file-patterns '**/*'
 if [ -n "$${commands[fzf-share]}" ]; then
   source "$(fzf-share)/key-bindings.zsh"
   source "$(fzf-share)/completion.zsh"
 fi
 setopt globdots # show dotfiles in autocomplete list
-# Set the Dinamic library path
-# export LD_LIBRARY_PATH="$HOME/.local/lib";
+
+# This will be our new default `ctrl+w` command
+my-backward-delete-word() {
+    # Copy the global WORDCHARS variable to a local variable. That way any
+    # modifications are scoped to this function only
+    local WORDCHARS=$WORDCHARS
+    # Use bash string manipulation to remove `:` so our delete will stop at it
+    WORDCHARS="''\${WORDCHARS//:}"
+    # Use bash string manipulation to remove `/` so our delete will stop at it
+    WORDCHARS="''\${WORDCHARS//\/}"
+    # Use bash string manipulation to remove `.` so our delete will stop at it
+    WORDCHARS="''\${WORDCHARS//.}"
+    # zle <widget-name> will run an existing widget.
+    zle backward-delete-word
+}
+# `zle -N` will create a new widget that we can use on the command line
+zle -N my-backward-delete-word
+# bind this new widget to `ctrl+w`
+bindkey '^W' my-backward-delete-word
+
+# This will be our `ctrl+alt+w` command
+my-backward-delete-whole-word() {
+    # Copy the global WORDCHARS variable to a local variable. That way any
+    # modifications are scoped to this function only
+    local WORDCHARS=$WORDCHARS
+    # Use bash string manipulation to add `:` to WORDCHARS if it's not present
+    # already.
+    [[ ! $WORDCHARS == *":"* ]] && WORDCHARS="$WORDCHARS"":"
+    # zle <widget-name> will run that widget.
+    zle backward-delete-word
+}
+# `zle -N` will create a new widget that we can use on the command line
+zle -N my-backward-delete-whole-word
+# bind this new widget to `ctrl+alt+w`
+bindkey '^[^w' my-backward-delete-whole-word
+
 export EDITOR=nvim
 '';
 
